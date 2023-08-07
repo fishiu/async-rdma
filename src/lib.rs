@@ -1742,7 +1742,7 @@ impl Rdma {
                 "Atomic operations are legal only when the remote address is on a naturally-aligned 8-byte boundary",
             ))
         } else {
-            let buf = self.alloc_local_mr(std::alloc::Layout::new::<[u8; 8]>())?;
+            let buf = self.alloc_local_mr(Layout::new::<[u8; 8]>())?;
             self.qp.atomic_cas(old_value, new_value, &buf, rm).await
         }
     }
@@ -2880,6 +2880,14 @@ impl Rdma {
     pub fn alloc_local_mr(&self, layout: Layout) -> io::Result<LocalMr> {
         self.allocator
             .alloc_zeroed_default_access(&layout, &self.pd)
+    }
+
+    /// Register a local memory region
+    /// TODO: add example
+    #[inline]
+    pub fn register_local_mr(&self, addr: *mut u8, layout: Layout) -> io::Result<LocalMr> {
+        self.allocator
+            .register_memory(&layout, addr, &self.pd)
     }
 
     /// Allocate a local memory region that has not been initialized

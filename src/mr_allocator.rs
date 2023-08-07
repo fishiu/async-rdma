@@ -228,6 +228,17 @@ impl MrAllocator {
         self.alloc_zeroed(layout, self.default_access, pd)
     }
 
+    #[allow(clippy::as_conversions)]
+    pub(crate) fn register_memory(
+        self: &Arc<Self>,
+        layout: &Layout,
+        addr: *mut u8,
+        pd: &Arc<ProtectionDomain>,
+    ) -> io::Result<LocalMr> {
+        let raw_mr = Arc::new(RawMemoryRegion::register_from_pd(pd, addr, layout.size(), self.default_access)?);
+        Ok(LocalMr::new(LocalMrInner::new_extern(addr as usize, *layout, raw_mr, self.strategy)))
+    }
+
     /// Allocate a `LocalMrInner` according to the `layout`
     ///
     /// # Safety

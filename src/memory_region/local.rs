@@ -482,12 +482,18 @@ pub struct LocalMrInner {
     raw: Arc<RawMemoryRegion>,
     /// Strategy to manage this `MR`
     strategy: MRManageStrategy,
+    /// Whether it is external memory
+    extern_mem: bool,
 }
 
 impl Drop for LocalMrInner {
     #[inline]
     #[allow(clippy::as_conversions)]
     fn drop(&mut self) {
+        if self.extern_mem {
+            debug!("external memory, no need to drop");
+            return;
+        }
         debug!("drop LocalMr {:?}", self);
         match self.strategy {
             crate::MRManageStrategy::Jemalloc => {
@@ -542,6 +548,22 @@ impl LocalMrInner {
             layout,
             raw,
             strategy,
+            extern_mem: false,
+        }
+    }
+
+    pub(crate) fn new_extern(
+        addr: usize,
+        layout: Layout,
+        raw: Arc<RawMemoryRegion>,
+        strategy: MRManageStrategy,
+    ) -> Self {
+        Self {
+            addr,
+            layout,
+            raw,
+            strategy,
+            extern_mem: true,
         }
     }
 
