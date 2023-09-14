@@ -408,16 +408,22 @@ impl RdmaBuilder {
     pub async fn connect<A: ToSocketAddrs>(self, addr: A) -> io::Result<Rdma> {
         match self.qp_attr.conn_type {
             ConnectionType::RCSocket => {
+                println!("start to connect");
                 let mut rdma = self.build()?;
+                println!("rdma build done");
                 let remote = tcp_connect_helper(addr, &rdma.endpoint()).await?;
+                println!("tcp connect done");
                 let (recv_attr, send_attr) =
                     builders_into_attrs(self.qp_attr.rq_attr, self.qp_attr.sq_attr, &remote)?;
+                println!("builder into attrs done");
                 rdma.qp_handshake(recv_attr, send_attr)?;
+                println!("handshake done");
                 rdma.init_agent(
                     self.agent_attr.max_message_length,
                     self.agent_attr.max_rmr_access,
                 )
                 .await?;
+                println!("init agent done");
                 Ok(rdma)
             }
             ConnectionType::RCCM | ConnectionType::RCIBV => Err(io::Error::new(
