@@ -607,9 +607,11 @@ impl RdmaBuilder {
     pub async fn listen<A: ToSocketAddrs>(self, addr: A) -> io::Result<Rdma> {
         match self.qp_attr.conn_type {
             ConnectionType::RCSocket => {
+                println!("start listen");
                 let recv_attr_builder = self.qp_attr.rq_attr;
                 let send_attr_builder = self.qp_attr.sq_attr;
                 let mut rdma = self.build()?;
+                println!("build rdma");
                 let tcp_listener = TcpListener::bind(addr).await?;
                 let remote = tcp_listen(&tcp_listener, &rdma.endpoint()).await?;
                 let (recv_attr, send_attr) =
