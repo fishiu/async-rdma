@@ -1277,14 +1277,17 @@ impl Rdma {
         mr_attr: MRInitAttr,
         agent_attr: AgentInitAttr,
     ) -> io::Result<Self> {
+        println!("start new rdma");
         let ctx = Arc::new(Context::open(
             dev_attr.dev_name.as_deref(),
             qp_attr.rq_attr.get_port_num(),
             qp_attr.rq_attr.get_sgid_index().cast(),
         )?);
+        println!("ctx created");
         let ec = ctx.create_event_channel()?;
+        println!("ec created");
         let cq = Arc::new(ctx.create_completion_queue(cq_attr.cq_size, ec, cq_attr.max_cqe)?);
-
+        println!("cq created");
         let (pt_input, trigger_tx) = match agent_attr.pt_type {
             PollingTriggerType::Automatic => (PollingTriggerInput::AsyncFd(Arc::clone(&cq)), None),
             PollingTriggerType::Manual => {
@@ -1300,6 +1303,7 @@ impl Rdma {
         ));
 
         let pd = Arc::new(ctx.create_protection_domain()?);
+        println!("pd created");
         let allocator = Arc::new(MrAllocator::new(
             Arc::<ProtectionDomain>::clone(&pd),
             mr_attr,
@@ -1314,6 +1318,7 @@ impl Rdma {
             .rq_attr(qp_attr.rq_attr)
             .agent_attr(agent_attr)
             .build()?;
+        println!("clone_attr created");
 
         let qp = Arc::new(pd.create_qp(
             cq_event_listener,
@@ -1321,6 +1326,7 @@ impl Rdma {
             qp_attr.rq_attr.get_port_num(),
             true,
         )?);
+        println!("qp created");
 
         Ok(Self {
             ctx,
