@@ -61,6 +61,8 @@ impl Context {
             "This is a basic verb that shouldn't fail, check if the module ib_uverbs is loaded.",
         )?;
 
+        println!("dev_list.len() = {}", dev_list.len());
+
         let dev = match dev_name {
             Some(name) => dev_list.iter().find(|&d| d.name() == name),
             // choose the most recently added rdma device as default
