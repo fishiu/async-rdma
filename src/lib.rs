@@ -1277,7 +1277,7 @@ impl Rdma {
         mr_attr: MRInitAttr,
         agent_attr: AgentInitAttr,
     ) -> io::Result<Self> {
-        println!("start new rdma");
+        println!("start new rdma, dev_attr: {:?}, qp_attr: {:?}", dev_attr, qp_attr);
         let ctx = Arc::new(Context::open(
             dev_attr.dev_name.as_deref(),
             qp_attr.rq_attr.get_port_num(),
