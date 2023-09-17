@@ -62,6 +62,9 @@ impl Context {
         )?;
 
         println!("dev_list.len() = {}", dev_list.len());
+        for dev in dev_list.iter() {
+            println!("dev.name() = {}", dev.name());
+        }
 
         let dev = match dev_name {
             Some(name) => dev_list.iter().find(|&d| d.name() == name),
